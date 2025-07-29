@@ -1,0 +1,15 @@
+{
+  "N_CUPS": 16,
+  "RADIUS": 0.75,
+  "G": 9.81,
+  "DAMPING": 0.8,
+  "LEAK_RATE": 0.6,
+  "INFLOW_RATE": 3.5,
+  "INERTIA": 1.2,
+  "OMEGA0": 0.1,
+  "T_START": 0,
+  "T_END": 40,
+  "N_FRAMES": 1000,
+  "OUTPUT_FILE": "lorenz_water_wheel.gif",
+  "FPS": 25
+}
