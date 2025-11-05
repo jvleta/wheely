@@ -4,6 +4,11 @@ import matplotlib.pyplot as plt
 from matplotlib.animation import FuncAnimation, PillowWriter
 from scipy.integrate import solve_ivp
 
+try:
+    import wheely_cpp # type: ignore
+except ImportError:
+    wheely_cpp = None
+
 # -----------------------------
 # 📥 Load config from JSON
 # -----------------------------
@@ -53,31 +58,42 @@ def water_wheel_ode(t, state, N, R, g, gamma, k, Q, I):
     dtheta_dt = omega
     return np.concatenate(([dtheta_dt, domega_dt], dmdt))
 
-# -----------------------------
-# ⏱️ Solve ODE
-# -----------------------------
-t_eval = np.linspace(config["T_START"], config["T_END"], config["N_FRAMES"])
-initial_state = np.zeros(config["N_CUPS"] + 2)
-initial_state[1] = config["OMEGA0"]
-
-sol = solve_ivp(
-    water_wheel_ode,
-    (config["T_START"], config["T_END"]),
-    initial_state,
-    t_eval=t_eval,
-    args=(
-        config["N_CUPS"],
-        config["RADIUS"],
-        config["G"],
-        config["DAMPING"],
-        config["LEAK_RATE"],
-        config["INFLOW_RATE"],
-        config["INERTIA"]
+def simulate_python(cfg):
+    t_eval = np.linspace(cfg["T_START"], cfg["T_END"], cfg["N_FRAMES"])
+    state0 = np.zeros(cfg["N_CUPS"] + 2)
+    state0[1] = cfg["OMEGA0"]
+    sol = solve_ivp(
+        water_wheel_ode,
+        (cfg["T_START"], cfg["T_END"]),
+        state0,
+        t_eval=t_eval,
+        args=(
+            cfg["N_CUPS"],
+            cfg["RADIUS"],
+            cfg["G"],
+            cfg["DAMPING"],
+            cfg["LEAK_RATE"],
+            cfg["INFLOW_RATE"],
+            cfg["INERTIA"]
+        )
     )
-)
+    return t_eval, sol.y[0], sol.y[2:]
 
-theta_vals = sol.y[0]
-cup_masses = sol.y[2:]
+
+def run_simulation(cfg, prefer_cpp=True, steps_per_frame=4):
+    if prefer_cpp and wheely_cpp is not None:
+        try:
+            return wheely_cpp.simulate(cfg, steps_per_frame)
+        except Exception as exc:
+            print(f"Falling back to SciPy solver (C++ module failed: {exc})")
+    return simulate_python(cfg)
+
+
+times, theta_vals, cup_masses = run_simulation(config)
+times = np.asarray(times)
+theta_vals = np.asarray(theta_vals)
+cup_masses = np.asarray(cup_masses)
+num_frames = theta_vals.shape[0]
 
 # -----------------------------
 # 🎞️ Animation Setup
@@ -107,7 +123,7 @@ def update(frame):
 
     return [cup_dots] + cup_texts
 
-ani = FuncAnimation(fig, update, frames=config["N_FRAMES"], init_func=init, blit=True, interval=1000/config["FPS"])
+ani = FuncAnimation(fig, update, frames=num_frames, init_func=init, blit=True, interval=1000/config["FPS"])
 
 # Save as GIF
 # ani.save(config["OUTPUT_FILE"], writer=PillowWriter(fps=config["FPS"]))

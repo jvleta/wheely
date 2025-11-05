@@ -1,0 +1,17 @@
+{
+    "configurations": [
+        {
+            "name": "Mac",
+            "includePath": [
+                "${default}",
+                "/opt/homebrew/include",
+                "/opt/homebrew/opt/emscripten/libexec/system/include",
+                "/opt/homebrew/opt/emscripten/libexec/cache/sysroot/include"
+            ],
+            "defines": [],
+            "cStandard": "c17",
+            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang"
+        }
+    ],
+    "version": 4
+}
