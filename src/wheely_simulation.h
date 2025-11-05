@@ -1,4 +1,5 @@
-#pragma once
+#ifndef WHEELY_SIMULATION_H
+#define WHEELY_SIMULATION_H
 
 #include <cstddef>
 #include <vector>
@@ -30,3 +31,4 @@ SimulationResult simulate(const SimulationConfig &cfg);
 
 }  // namespace wheely
 
+#endif  // WHEELY_SIMULATION_H
