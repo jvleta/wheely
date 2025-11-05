@@ -437,7 +437,7 @@ export default function App() {
 
   return (
     <main style={{ display: "flex", flexDirection: "column", gap: "1rem", alignItems: "stretch", padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: "880px", margin: "0 auto" }}>
-      <h1>Wheely WebAssembly Demo</h1>
+      <h1>Water Wheel Demo</h1>
       <p>
         Click the button to run the Lorenz water wheel simulation inside WebAssembly. The configuration mirrors the default
         Python run.
