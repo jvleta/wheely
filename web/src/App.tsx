@@ -5,12 +5,12 @@ import { loadWheelyModule } from "./wasm";
 
 const defaultConfig = {
   n_cups: 8,
-  radius: 1.3,
+  radius: 1.0,
   g: 9.81,
-  damping: 2.25,
+  damping: 2.0,
   leak_rate: 0.10,
   inflow_rate: 0.90,
-  inertia: 5.3,
+  inertia: 5.0,
   omega0: 1.0,
   t_start: 0,
   t_end: 90,
@@ -159,7 +159,8 @@ export default function App() {
             color: frame.masses,
             colorscale: "Turbo",
             cmin: massMin,
-            cmax: colorMax
+            cmax: colorMax,
+            symbol: "square"
           },
           text: frame.masses.map((value) => value.toFixed(1)),
           customdata: cupLabels
@@ -204,6 +205,7 @@ export default function App() {
               colorscale: "Turbo",
               cmin: massMin,
               cmax: colorMax,
+              symbol: "square",
               colorbar: { title: { text: "Mass" } }
             },
             name: "Cups",
@@ -291,21 +293,21 @@ export default function App() {
       />
     </label>
   );
-// TODO: investigate whether we can listen for changes to the input fields and auto-run the simulation. It would be nice to have live updates.
   return (
-    <main style={{ display: "flex", gap: "2rem", alignItems: "flex-start", padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: "1200px", margin: "0 auto" }}>
-      <section style={{ flex: "0 0 320px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <div>
-          <h1 style={{ margin: "0 0 0.5rem" }}>Water Wheel</h1>
-          <p style={{ margin: 0, color: "#555", fontSize: "0.95rem" }}>Adjust the parameters and run the simulation.</p>
-        </div>
+    <main style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: "1200px", width: "100%", margin: "0 auto", alignItems: "center" }}>
+      <header style={{ textAlign: "center", width: "100%" }}>
+        <h1 style={{ margin: "0 0 0.5rem" }}>Water Wheel</h1>
+        <p style={{ margin: 0, color: "#555", fontSize: "0.95rem" }}>Adjust the parameters and run the simulation.</p>
+      </header>
+      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start", justifyContent: "center", width: "100%" }}>
+        <section style={{ flex: "0 0 320px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
         <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
           {renderField("n_cups", "Number of cups", 1, 1)}
-          {renderField("radius", "Radius (m)", 0)}
-          {renderField("damping", "Damping", 0)}
-          {renderField("leak_rate", "Leak rate", 0)}
-          {renderField("inflow_rate", "Inflow rate", 0)}
-          {renderField("inertia", "Inertia", 0)}
+          {renderField("radius", "Wheel Radius (m)", 0)}
+          {renderField("damping", "Damping (kg*m^2/s)", 0)}
+          {renderField("leak_rate", "Leak rate (1/s)", 0)}
+          {renderField("inflow_rate", "Inflow rate (kg/s)", 0)}
+          {renderField("inertia", "Inertia (kg*m^2)", 0)}
         </div>
         <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
           <button type="button" onClick={handleRun} disabled={status === "loading"} style={{ padding: "0.5rem 1.25rem", fontSize: "1rem", cursor: status === "loading" ? "wait" : "pointer" }}>
@@ -318,19 +320,19 @@ export default function App() {
         {error && (
           <p style={{ color: "crimson", margin: 0 }}>Failed to run simulation: {error}</p>
         )}
-      </section>
-      <section style={{ flex: "1 1 auto", minHeight: "520px", display: "flex", flexDirection: "column", gap: "1rem" }}>
-        <h2 style={{ margin: 0 }}>Wheel Animation</h2>
-        <div style={{ flex: "1 1 auto", minHeight: "480px", border: "1px solid #e0e0e0", borderRadius: "0.75rem", padding: "1rem", backgroundColor: "#fff", display: "flex", alignItems: "stretch", justifyContent: "center" }}>
-          {status === "loading" && (
-            <p style={{ margin: "auto", color: "#555" }}>Running simulation…</p>
-          )}
-          {status !== "loading" && geometryPlot}
-          {status !== "loading" && !geometryPlot && (
-            <p style={{ margin: "auto", color: "#555" }}>Run the simulation to see the wheel animation.</p>
-          )}
-        </div>
-      </section>
+        </section>
+        <section style={{ flex: "1 1 auto", minHeight: "520px", display: "flex", flexDirection: "column", gap: "1rem" }}>
+          <div style={{ flex: "1 1 auto", minHeight: "480px", border: "1px solid #e0e0e0", borderRadius: "0.75rem", padding: "1rem", backgroundColor: "#fff", display: "flex", alignItems: "stretch", justifyContent: "center" }}>
+            {status === "loading" && (
+              <p style={{ margin: "auto", color: "#555" }}>Running simulation…</p>
+            )}
+            {status !== "loading" && geometryPlot}
+            {status !== "loading" && !geometryPlot && (
+              <p style={{ margin: "auto", color: "#555" }}>Run the simulation to see the wheel animation.</p>
+            )}
+          </div>
+        </section>
+      </div>
     </main>
   );
 }
