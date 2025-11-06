@@ -18,6 +18,22 @@ const defaultConfig = {
   steps_per_frame: 6
 } as const;
 
+const zenburnPalette = {
+  background: "#3F3F3F",
+  surface: "#464646",
+  panel: "#2F2F2F",
+  border: "#5C5C5C",
+  borderSubtle: "#6F6F6F",
+  textPrimary: "#DCDCCC",
+  textMuted: "#AFAF87",
+  accent: "#F0DFAF",
+  accentAlt: "#8CD0D3",
+  success: "#7F9F7F",
+  danger: "#CC9393",
+  plotGrid: "#5B605E",
+  textOnAccent: "#1E2320"
+} as const;
+
 type SimulationConfig = typeof defaultConfig;
 
 type PlotReadyData = {
@@ -128,6 +144,19 @@ export default function App() {
   }, []);
 
   useEffect(() => {
+    if (typeof document === "undefined") {
+      return;
+    }
+    const { backgroundColor: previousBackground, color: previousColor } = document.body.style;
+    document.body.style.backgroundColor = zenburnPalette.background;
+    document.body.style.color = zenburnPalette.textPrimary;
+    return () => {
+      document.body.style.backgroundColor = previousBackground;
+      document.body.style.color = previousColor;
+    };
+  }, []);
+
+  useEffect(() => {
     void handleRun();
   }, [handleRun]);
 
@@ -142,6 +171,11 @@ export default function App() {
     const circleY = circleAngles.map((angle) => plotData.radius * Math.sin(angle));
     const { min: massMin, max: massMax } = plotData.massRange;
     const colorMax = massMax > massMin ? massMax : massMin + 1e-6;
+    const massColorscale: [number, string][] = [
+      [0, zenburnPalette.panel],
+      [0.5, zenburnPalette.success],
+      [1, zenburnPalette.accent]
+    ];
     const cupLabels = Array.from({ length: plotData.cupCount }, (_, index) => index + 1);
     const frames: Frame[] = plotData.positionsByFrame.map((frame, frameIndex) => ({
       name: frameIndex.toString(),
@@ -157,10 +191,11 @@ export default function App() {
           marker: {
             size: 18,
             color: frame.masses,
-            colorscale: "Turbo",
+            colorscale: massColorscale,
             cmin: massMin,
             cmax: colorMax,
-            symbol: "square"
+            symbol: "square",
+            line: { color: zenburnPalette.borderSubtle, width: 1 }
           },
           text: frame.masses.map((value) => value.toFixed(1)),
           customdata: cupLabels
@@ -202,11 +237,17 @@ export default function App() {
             marker: {
               size: 18,
               color: initialFrame.masses,
-              colorscale: "Turbo",
+              colorscale: massColorscale,
               cmin: massMin,
               cmax: colorMax,
               symbol: "square",
-              colorbar: { title: { text: "Mass" } }
+              line: { color: zenburnPalette.borderSubtle, width: 1 },
+              colorbar: {
+                title: { text: "Mass", font: { color: zenburnPalette.textPrimary } },
+                bgcolor: "rgba(0,0,0,0)",
+                outlinecolor: zenburnPalette.borderSubtle,
+                tickfont: { color: zenburnPalette.textPrimary }
+              }
             },
             name: "Cups",
             hovertemplate:
@@ -218,7 +259,7 @@ export default function App() {
             mode: "lines",
             x: circleX,
             y: circleY,
-            line: { dash: "dot", color: "#888", width: 2 },
+            line: { dash: "dot", color: zenburnPalette.accentAlt, width: 2 },
             name: "Wheel rim",
             hoverinfo: "skip",
             showlegend: false
@@ -226,23 +267,37 @@ export default function App() {
         ]}
         frames={frames}
         layout={{
-          title: "Wheel Geometry",
+          title: { text: "Wheel Geometry", font: { color: zenburnPalette.textPrimary } },
+          paper_bgcolor: zenburnPalette.background,
+          plot_bgcolor: zenburnPalette.panel,
           xaxis: {
-            title: "x (m)",
+            title: { text: "x (m)", font: { color: zenburnPalette.textPrimary } },
             range: [-axisExtent, axisExtent],
             scaleanchor: "y",
-            scaleratio: 1
+            scaleratio: 1,
+            gridcolor: zenburnPalette.plotGrid,
+            zerolinecolor: zenburnPalette.borderSubtle,
+            tickfont: { color: zenburnPalette.textPrimary },
+            linecolor: zenburnPalette.borderSubtle
           },
           yaxis: {
-            title: "y (m)",
-            range: [-axisExtent, axisExtent]
+            title: { text: "y (m)", font: { color: zenburnPalette.textPrimary } },
+            range: [-axisExtent, axisExtent],
+            gridcolor: zenburnPalette.plotGrid,
+            zerolinecolor: zenburnPalette.borderSubtle,
+            tickfont: { color: zenburnPalette.textPrimary },
+            linecolor: zenburnPalette.borderSubtle
           },
-          margin: { t: 40, r: 30, b: 60, l: 60 },
+          margin: { t: 40, r: 50, b: 60, l: 60 },
           showlegend: false,
+          font: { color: zenburnPalette.textPrimary },
           updatemenus: [
             {
               type: "buttons",
               showactive: false,
+              bgcolor: zenburnPalette.surface,
+              bordercolor: zenburnPalette.border,
+              activecolor: zenburnPalette.accentAlt,
               buttons: [
                 {
                   label: "Play",
@@ -263,14 +318,16 @@ export default function App() {
           sliders: [
             {
               active: 0,
-              currentvalue: { prefix: "Time (s): " },
+              currentvalue: { prefix: "Time (s): ", font: { color: zenburnPalette.textPrimary } },
               pad: { t: 30 },
-              steps: sliderSteps
+              steps: sliderSteps,
+              bgcolor: zenburnPalette.surface,
+              bordercolor: zenburnPalette.border
             }
           ]
         }}
         config={{ responsive: true, displaylogo: false }}
-        style={{ width: "100%", height: "100%" }}
+        style={{ width: "100%", height: "100%", backgroundColor: zenburnPalette.panel, borderRadius: "0.5rem" }}
       />
     );
   }, [plotData]);
@@ -281,54 +338,184 @@ export default function App() {
     min?: number,
     step?: number
   ) => (
-    <label key={key} style={{ display: "flex", flexDirection: "column", gap: "0.25rem" }}>
-      <span style={{ fontWeight: 600 }}>{label}</span>
+    <label
+      key={key}
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "0.4rem",
+        padding: "0.75rem 0.85rem",
+        borderRadius: "0.6rem",
+        backgroundColor: zenburnPalette.surface,
+        border: `1px solid ${zenburnPalette.border}`
+      }}
+    >
+      <span style={{ fontWeight: 600, color: zenburnPalette.accent }}>{label}</span>
       <input
         type="number"
         value={config[key]}
         onChange={(event) => handleChange(key, event.target.value)}
         min={min}
         step={step ?? "any"}
-        style={{ padding: "0.4rem", borderRadius: "0.4rem", border: "1px solid #ccc", fontSize: "1rem" }}
+        style={{
+          padding: "0.45rem 0.6rem",
+          borderRadius: "0.5rem",
+          border: `1px solid ${zenburnPalette.borderSubtle}`,
+          fontSize: "1rem",
+          backgroundColor: zenburnPalette.panel,
+          color: zenburnPalette.textPrimary,
+          boxShadow: "inset 0 1px 2px rgba(0, 0, 0, 0.4)"
+        }}
       />
     </label>
   );
   return (
-    <main style={{ display: "flex", flexDirection: "column", gap: "2rem", padding: "2rem", fontFamily: "system-ui, sans-serif", maxWidth: "1200px", width: "100%", margin: "0 auto", alignItems: "center" }}>
-      <header style={{ textAlign: "center", width: "100%" }}>
-        <h1 style={{ margin: "0 0 0.5rem" }}>Water Wheel</h1>
-        <p style={{ margin: 0, color: "#555", fontSize: "0.95rem" }}>Adjust the parameters and run the simulation.</p>
+    <main
+      style={{
+        display: "flex",
+        flexDirection: "column",
+        gap: "2rem",
+        padding: "2.5rem 2rem 3rem",
+        fontFamily: "'Inter', system-ui, sans-serif",
+        maxWidth: "1200px",
+        width: "100%",
+        margin: "0 auto",
+        alignItems: "center",
+        color: zenburnPalette.textPrimary,
+        minHeight: "100vh",
+        boxSizing: "border-box"
+      }}
+    >
+      <header
+        style={{
+          textAlign: "center",
+          width: "100%",
+          display: "flex",
+          flexDirection: "column",
+          gap: "0.75rem"
+        }}
+      >
+        <h1 style={{ margin: 0, color: zenburnPalette.accent }}>Water Wheel</h1>
+        <p style={{ margin: 0, color: zenburnPalette.textMuted, fontSize: "0.95rem" }}>
+          Adjust the parameters and run the simulation.
+        </p>
       </header>
-      <div style={{ display: "flex", gap: "2rem", alignItems: "flex-start", justifyContent: "center", width: "100%" }}>
-        <section style={{ flex: "0 0 320px", display: "flex", flexDirection: "column", gap: "1.5rem" }}>
-        <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
-          {renderField("n_cups", "Number of cups", 1, 1)}
-          {renderField("radius", "Wheel Radius (m)", 0)}
-          {renderField("damping", "Damping (kg*m^2/s)", 0)}
-          {renderField("leak_rate", "Leak rate (1/s)", 0)}
-          {renderField("inflow_rate", "Inflow rate (kg/s)", 0)}
-          {renderField("inertia", "Inertia (kg*m^2)", 0)}
-        </div>
-        <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap" }}>
-          <button type="button" onClick={handleRun} disabled={status === "loading"} style={{ padding: "0.5rem 1.25rem", fontSize: "1rem", cursor: status === "loading" ? "wait" : "pointer" }}>
-            {status === "loading" ? "Running…" : "Run Simulation"}
-          </button>
-          <button type="button" onClick={handleReset} disabled={status === "loading"} style={{ padding: "0.5rem 1.25rem", fontSize: "1rem" }}>
-            Reset to defaults
-          </button>
-        </div>
-        {error && (
-          <p style={{ color: "crimson", margin: 0 }}>Failed to run simulation: {error}</p>
-        )}
+      <div
+        style={{
+          display: "flex",
+          gap: "2rem",
+          alignItems: "flex-start",
+          justifyContent: "center",
+          width: "100%",
+          flexWrap: "wrap"
+        }}
+      >
+        <section
+          style={{
+            flex: "0 0 320px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1.5rem",
+            backgroundColor: zenburnPalette.panel,
+            borderRadius: "1rem",
+            border: `1px solid ${zenburnPalette.border}`,
+            padding: "1.5rem",
+            boxShadow: "0 20px 35px rgba(0, 0, 0, 0.35)"
+          }}
+        >
+          <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
+            {renderField("n_cups", "Number of cups", 1, 1)}
+            {renderField("radius", "Wheel Radius (m)", 0)}
+            {renderField("damping", "Damping (kg*m^2/s)", 0)}
+            {renderField("leak_rate", "Leak rate (1/s)", 0)}
+            {renderField("inflow_rate", "Inflow rate (kg/s)", 0)}
+            {renderField("inertia", "Inertia (kg*m^2)", 0)}
+          </div>
+          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+            <button
+              type="button"
+              onClick={handleRun}
+              disabled={status === "loading"}
+              style={{
+                padding: "0.55rem 1.5rem",
+                fontSize: "1rem",
+                cursor: status === "loading" ? "wait" : "pointer",
+                borderRadius: "0.6rem",
+                border: "none",
+                fontWeight: 600,
+                color: zenburnPalette.textOnAccent,
+                background:
+                  status === "loading"
+                    ? zenburnPalette.borderSubtle
+                    : `linear-gradient(135deg, ${zenburnPalette.success}, ${zenburnPalette.accent})`,
+                boxShadow: "0 10px 18px rgba(0, 0, 0, 0.4)",
+                minWidth: "160px",
+                transition: "transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease",
+                opacity: status === "loading" ? 0.85 : 1
+              }}
+            >
+              {status === "loading" ? "Running…" : "Run Simulation"}
+            </button>
+            <button
+              type="button"
+              onClick={handleReset}
+              disabled={status === "loading"}
+              style={{
+                padding: "0.55rem 1.5rem",
+                fontSize: "1rem",
+                cursor: status === "loading" ? "not-allowed" : "pointer",
+                borderRadius: "0.6rem",
+                border: `1px solid ${zenburnPalette.borderSubtle}`,
+                fontWeight: 500,
+                color: zenburnPalette.accentAlt,
+                background: "transparent",
+                minWidth: "160px",
+                opacity: status === "loading" ? 0.75 : 1,
+                transition: "transform 0.2s ease, box-shadow 0.2s ease"
+              }}
+            >
+              Reset to defaults
+            </button>
+          </div>
+          {error && (
+            <p style={{ color: zenburnPalette.danger, margin: 0 }}>Failed to run simulation: {error}</p>
+          )}
         </section>
-        <section style={{ flex: "1 1 auto", minHeight: "520px", display: "flex", flexDirection: "column", gap: "1rem" }}>
-          <div style={{ flex: "1 1 auto", minHeight: "480px", border: "1px solid #e0e0e0", borderRadius: "0.75rem", padding: "1rem", backgroundColor: "#fff", display: "flex", alignItems: "stretch", justifyContent: "center" }}>
+        <section
+          style={{
+            flex: "1 1 auto",
+            minHeight: "520px",
+            display: "flex",
+            flexDirection: "column",
+            gap: "1rem",
+            backgroundColor: zenburnPalette.panel,
+            borderRadius: "1rem",
+            border: `1px solid ${zenburnPalette.border}`,
+            padding: "1.5rem",
+            boxShadow: "0 20px 35px rgba(0, 0, 0, 0.35)"
+          }}
+        >
+          <div
+            style={{
+              flex: "1 1 auto",
+              minHeight: "480px",
+              border: `1px solid ${zenburnPalette.border}`,
+              borderRadius: "0.85rem",
+              padding: "1rem",
+              backgroundColor: zenburnPalette.surface,
+              display: "flex",
+              alignItems: "stretch",
+              justifyContent: "center"
+            }}
+          >
             {status === "loading" && (
-              <p style={{ margin: "auto", color: "#555" }}>Running simulation…</p>
+              <p style={{ margin: "auto", color: zenburnPalette.textMuted }}>Running simulation…</p>
             )}
             {status !== "loading" && geometryPlot}
             {status !== "loading" && !geometryPlot && (
-              <p style={{ margin: "auto", color: "#555" }}>Run the simulation to see the wheel animation.</p>
+              <p style={{ margin: "auto", color: zenburnPalette.textMuted }}>
+                Run the simulation to see the wheel animation.
+              </p>
             )}
           </div>
         </section>
