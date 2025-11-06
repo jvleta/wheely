@@ -1,39 +1,39 @@
-cmake_minimum_required(VERSION 3.14)
+cmake_minimum_required(VERSION 3.13)
 project(wheely_cpp LANGUAGES CXX)
 
 set(CMAKE_CXX_STANDARD 17)
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_POSITION_INDEPENDENT_CODE ON)
 
-find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
+# find_package(Python3 COMPONENTS Interpreter Development.Module REQUIRED)
 
-if(NOT DEFINED pybind11_DIR)
-    execute_process(
-        COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
-        OUTPUT_VARIABLE _pybind11_cmake_dir
-        OUTPUT_STRIP_TRAILING_WHITESPACE
-        ERROR_QUIET
-    )
-    if(_pybind11_cmake_dir)
-        list(APPEND CMAKE_PREFIX_PATH "${_pybind11_cmake_dir}")
-    endif()
-endif()
+# if(NOT DEFINED pybind11_DIR)
+#     execute_process(
+#         COMMAND "${Python3_EXECUTABLE}" -m pybind11 --cmakedir
+#         OUTPUT_VARIABLE _pybind11_cmake_dir
+#         OUTPUT_STRIP_TRAILING_WHITESPACE
+#         ERROR_QUIET
+#     )
+#     if(_pybind11_cmake_dir)
+#         list(APPEND CMAKE_PREFIX_PATH "${_pybind11_cmake_dir}")
+#     endif()
+# endif()
 
-find_package(pybind11 CONFIG REQUIRED)
+# find_package(pybind11 CONFIG REQUIRED)
 
-pybind11_add_module(wheely_cpp
-    src/wheely_module.cpp
-    src/wheely_simulation.cpp
-)
+# pybind11_add_module(wheely_cpp
+#     src/wheely_module.cpp
+#     src/wheely_simulation.cpp
+# )
 
-target_compile_features(wheely_cpp PRIVATE cxx_std_17)
-target_compile_options(
-    wheely_cpp
-    PRIVATE
-        -Wall
-        -Wextra
-        -Wpedantic
-)
+# target_compile_features(wheely_cpp PRIVATE cxx_std_17)
+# target_compile_options(
+#     wheely_cpp
+#     PRIVATE
+#         -Wall
+#         -Wextra
+#         -Wpedantic
+# )
 find_program(EMSCRIPTEN_CXX NAMES em++)
 
 if(EMSCRIPTEN_CXX)
@@ -67,3 +67,39 @@ if(EMSCRIPTEN_CXX)
 
     add_custom_target(wheely_wasm DEPENDS "${WASM_JS}")
 endif()
+
+# include(CTest)
+
+# if(BUILD_TESTING)
+#     find_package(GTest CONFIG QUIET)
+#     if(NOT GTest_FOUND)
+#         find_package(GTest REQUIRED)
+#     endif()
+
+#     if(TARGET GTest::gtest)
+#         set(_gtest_lib GTest::gtest)
+#         set(_gtest_main_lib GTest::gtest_main)
+#     elseif(TARGET GTest::GTest)
+#         set(_gtest_lib GTest::GTest)
+#         set(_gtest_main_lib GTest::Main)
+#     else()
+#         message(FATAL_ERROR "Unable to locate GoogleTest targets")
+#     endif()
+
+#     add_executable(wheely_simulation_tests
+#         tests/wheely_simulation_test.cpp
+#     )
+
+#     target_include_directories(wheely_simulation_tests
+#         PRIVATE
+#             "${CMAKE_CURRENT_SOURCE_DIR}/src"
+#     )
+
+#     target_link_libraries(wheely_simulation_tests
+#         PRIVATE
+#             ${_gtest_lib}
+#             ${_gtest_main_lib}
+#     )
+
+#     add_test(NAME wheely_simulation_tests COMMAND wheely_simulation_tests)
+# endif()

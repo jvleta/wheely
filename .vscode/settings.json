@@ -1,3 +1,11 @@
 {
-    "C_Cpp.default.compilerPath": "/opt/homebrew/opt/llvm/bin/clang++",
+  "cmake.configureSettings": {
+    "CMAKE_TOOLCHAIN_FILE": "/opt/homebrew/opt/emscripten/libexec/cmake/Modules/Platform/Emscripten.cmake",
+    "CMAKE_CROSSCOMPILING_EMULATOR": "/opt/homebrew/opt/node/bin/node"
+  },
+  "cmake.generator": "Unix Makefiles",
+  "files.associations": {
+    "*.html": "html",
+    "vector": "cpp"
+  }
 }

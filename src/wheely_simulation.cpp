@@ -130,4 +130,3 @@ SimulationResult simulate(const SimulationConfig &cfg) {
 }
 
 }  // namespace wheely
-

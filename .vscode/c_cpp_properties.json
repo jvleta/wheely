@@ -1,17 +1,18 @@
 {
-    "configurations": [
-        {
-            "name": "Mac",
-            "includePath": [
-                "${default}",
-                "/opt/homebrew/include",
-                "/opt/homebrew/opt/emscripten/libexec/system/include",
-                "/opt/homebrew/opt/emscripten/libexec/cache/sysroot/include"
-            ],
-            "defines": [],
-            "cStandard": "c17",
-            "compilerPath": "/opt/homebrew/opt/llvm/bin/clang++"
-        }
-    ],
-    "version": 4
+  "configurations": [
+    {
+      "name": "Emscripten",
+      "includePath": [
+        "${default}",
+        "/opt/homebrew/include",
+        "/opt/homebrew/opt/emscripten/libexec/system/include",
+        "/opt/homebrew/opt/emscripten/libexec/cache/sysroot/include"
+      ],
+      "defines": ["__EMSCRIPTEN__"],
+      "cStandard": "c17",
+      "compilerPath": "/opt/homebrew/bin/em++",
+      "intelliSenseMode": "macos-clang-x64"
+    }
+  ],
+  "version": 4
 }
