@@ -18,6 +18,21 @@ const defaultConfig = {
   steps_per_frame: 6
 } as const;
 
+const runAwayConfig = {
+  n_cups: 8,
+  radius: 1.0,
+  g: 9.81,
+  damping: 0.00,
+  leak_rate: 0.00,
+  inflow_rate: 1.0,
+  inertia: 1.0,
+  omega0: 1.0,
+  t_start: 0.0,
+  t_end: 10.0,
+  n_frames: 500,
+  steps_per_frame: 500
+} as const;
+
 const zenburnPalette = {
   background: "#3F3F3F",
   surface: "#464646",
@@ -143,6 +158,12 @@ export default function App() {
     setPlotData(null);
   }, []);
 
+  const handleRunAwayPreset = useCallback(() => {
+    setConfig({ ...runAwayConfig });
+    setPlotData(null);
+    setError(null);
+  }, []);
+
   useEffect(() => {
     if (typeof document === "undefined") {
       return;
@@ -189,7 +210,7 @@ export default function App() {
           x: frame.x,
           y: frame.y,
           marker: {
-            size: 18,
+            size: 50,
             color: frame.masses,
             colorscale: massColorscale,
             cmin: massMin,
@@ -235,7 +256,7 @@ export default function App() {
             text: initialFrame.masses.map((value) => value.toFixed(1)),
             textposition: "top center",
             marker: {
-              size: 18,
+              size: 50,
               color: initialFrame.masses,
               colorscale: massColorscale,
               cmin: massMin,
@@ -479,7 +500,27 @@ export default function App() {
                   transition: "transform 0.2s ease, box-shadow 0.2s ease"
                 }}
               >
-                Reset to defaults
+                Preset 1: Default Config 
+              </button>
+              <button
+                type="button"
+                onClick={handleRunAwayPreset}
+                disabled={status === "loading"}
+                style={{
+                  padding: "0.55rem 1.5rem",
+                  fontSize: "1rem",
+                  cursor: status === "loading" ? "not-allowed" : "pointer",
+                  borderRadius: "0.6rem",
+                  border: `1px solid ${zenburnPalette.accentAlt}`,
+                  fontWeight: 600,
+                  color: zenburnPalette.accentAlt,
+                  background: zenburnPalette.surface,
+                  minWidth: "160px",
+                  opacity: status === "loading" ? 0.75 : 1,
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease"
+                }}
+              >
+                Preset 2: Runaway Wheel
               </button>
             </div>
             {error && (
