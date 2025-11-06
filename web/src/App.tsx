@@ -395,7 +395,7 @@ export default function App() {
           gap: "0.75rem"
         }}
       >
-        <h1 style={{ margin: 0, color: zenburnPalette.accent }}>Water Wheel</h1>
+        <h1 style={{ margin: 0, color: zenburnPalette.accent }}>Virtual Water Wheel</h1>
         <p style={{ margin: 0, color: zenburnPalette.textMuted, fontSize: "0.95rem" }}>
           Adjust the parameters and run the simulation.
         </p>
@@ -404,9 +404,10 @@ export default function App() {
         style={{
           display: "flex",
           gap: "2rem",
-          alignItems: "flex-start",
+          alignItems: "stretch",
           justifyContent: "center",
           width: "100%",
+          alignContent: "stretch",
           flexWrap: "wrap"
         }}
       >
@@ -420,7 +421,10 @@ export default function App() {
             borderRadius: "1rem",
             border: `1px solid ${zenburnPalette.border}`,
             padding: "1.5rem",
-            boxShadow: "0 20px 35px rgba(0, 0, 0, 0.35)"
+            boxShadow: "0 20px 35px rgba(0, 0, 0, 0.35)",
+            boxSizing: "border-box",
+            alignSelf: "stretch",
+            height: "100%"
           }}
         >
           <div style={{ display: "grid", gridTemplateColumns: "1fr", gap: "1rem" }}>
@@ -431,55 +435,59 @@ export default function App() {
             {renderField("inflow_rate", "Inflow rate (kg/s)", 0)}
             {renderField("inertia", "Inertia (kg*m^2)", 0)}
           </div>
-          <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
-            <button
-              type="button"
-              onClick={handleRun}
-              disabled={status === "loading"}
-              style={{
-                padding: "0.55rem 1.5rem",
-                fontSize: "1rem",
-                cursor: status === "loading" ? "wait" : "pointer",
-                borderRadius: "0.6rem",
-                border: "none",
-                fontWeight: 600,
-                color: zenburnPalette.textOnAccent,
-                background:
-                  status === "loading"
-                    ? zenburnPalette.borderSubtle
-                    : `linear-gradient(135deg, ${zenburnPalette.success}, ${zenburnPalette.accent})`,
-                boxShadow: "0 10px 18px rgba(0, 0, 0, 0.4)",
-                minWidth: "160px",
-                transition: "transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease",
-                opacity: status === "loading" ? 0.85 : 1
-              }}
-            >
-              {status === "loading" ? "Running…" : "Run Simulation"}
-            </button>
-            <button
-              type="button"
-              onClick={handleReset}
-              disabled={status === "loading"}
-              style={{
-                padding: "0.55rem 1.5rem",
-                fontSize: "1rem",
-                cursor: status === "loading" ? "not-allowed" : "pointer",
-                borderRadius: "0.6rem",
-                border: `1px solid ${zenburnPalette.borderSubtle}`,
-                fontWeight: 500,
-                color: zenburnPalette.accentAlt,
-                background: "transparent",
-                minWidth: "160px",
-                opacity: status === "loading" ? 0.75 : 1,
-                transition: "transform 0.2s ease, box-shadow 0.2s ease"
-              }}
-            >
-              Reset to defaults
-            </button>
+          <div style={{ marginTop: "auto", display: "flex", flexDirection: "column", gap: "0.9rem" }}>
+            <div style={{ display: "flex", gap: "0.75rem", flexWrap: "wrap", justifyContent: "center" }}>
+              <button
+                type="button"
+                onClick={handleRun}
+                disabled={status === "loading"}
+                style={{
+                  padding: "0.55rem 1.5rem",
+                  fontSize: "1rem",
+                  cursor: status === "loading" ? "wait" : "pointer",
+                  borderRadius: "0.6rem",
+                  border: "none",
+                  fontWeight: 600,
+                  color: zenburnPalette.textOnAccent,
+                  background:
+                    status === "loading"
+                      ? zenburnPalette.borderSubtle
+                      : `linear-gradient(135deg, ${zenburnPalette.success}, ${zenburnPalette.accent})`,
+                  boxShadow: "0 10px 18px rgba(0, 0, 0, 0.4)",
+                  minWidth: "160px",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease, background 0.2s ease",
+                  opacity: status === "loading" ? 0.85 : 1
+                }}
+              >
+                {status === "loading" ? "Running…" : "Run Simulation"}
+              </button>
+              <button
+                type="button"
+                onClick={handleReset}
+                disabled={status === "loading"}
+                style={{
+                  padding: "0.55rem 1.5rem",
+                  fontSize: "1rem",
+                  cursor: status === "loading" ? "not-allowed" : "pointer",
+                  borderRadius: "0.6rem",
+                  border: `1px solid ${zenburnPalette.borderSubtle}`,
+                  fontWeight: 500,
+                  color: zenburnPalette.accentAlt,
+                  background: "transparent",
+                  minWidth: "160px",
+                  opacity: status === "loading" ? 0.75 : 1,
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease"
+                }}
+              >
+                Reset to defaults
+              </button>
+            </div>
+            {error && (
+              <p style={{ color: zenburnPalette.danger, margin: 0, textAlign: "center" }}>
+                Failed to run simulation: {error}
+              </p>
+            )}
           </div>
-          {error && (
-            <p style={{ color: zenburnPalette.danger, margin: 0 }}>Failed to run simulation: {error}</p>
-          )}
         </section>
         <section
           style={{
