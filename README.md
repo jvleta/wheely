@@ -1,16 +1,29 @@
 # WHEELY
 
-## Build the C++ extension
+WebAssembly build of the wheely simulation plus the React client that consumes it.
 
-1. Install prerequisites (within your virtualenv): `pip install pybind11`.
-2. Configure the project: `cmake -S . -B build -DPython3_EXECUTABLE=$(which python3)`.
-3. Build the module: `cmake --build build`.
-4. Add the build folder to `PYTHONPATH` (for example `export PYTHONPATH=$PYTHONPATH:$(pwd)/build`) before running the Python script.
+## Prerequisites
 
-## Run the demo
+- Emscripten toolchain with `em++` on your `PATH`
+- CMake 3.13+ (used to orchestrate the WASM build)
+- Node.js 18+ and npm (for the client)
 
+## Build the WASM module
+
+```bash
+cmake -S . -B build
+cmake --build build --target wheely_wasm
 ```
-python wheely.py
+
+Artifacts land in `build/wasm/wheely_wasm.{js,wasm}`.
+
+## Run the client
+
+```bash
+cd web
+npm install                      # first time only
+npm run sync-wasm                # copies build/wasm artifacts into src/wasm/generated
+npm run dev                      # starts Vite on http://localhost:5173
 ```
 
-When the extension is available the simulation uses the C++ integrator; otherwise it falls back to SciPy.
+Use `npm run build && npm run preview` for a production preview.
