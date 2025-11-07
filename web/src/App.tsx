@@ -16,7 +16,7 @@ const defaultConfig = {
   t_end: 90,
   n_frames: 500,
   steps_per_frame: 6
-} as const;
+};
 
 const runAwayConfig = {
   n_cups: 8,
@@ -31,7 +31,7 @@ const runAwayConfig = {
   t_end: 10.0,
   n_frames: 500,
   steps_per_frame: 500
-} as const;
+};
 
 const zenburnPalette = {
   background: "#3F3F3F",
@@ -318,7 +318,6 @@ export default function App() {
               showactive: false,
               bgcolor: zenburnPalette.surface,
               bordercolor: zenburnPalette.border,
-              activecolor: zenburnPalette.accentAlt,
               buttons: [
                 {
                   label: "Play",
