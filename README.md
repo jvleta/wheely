@@ -1,6 +1,6 @@
 # WHEELY
 
-WebAssembly build of the wheely simulation plus the React client that consumes it.
+Tools for simulating the motion of a Lorenz Water Wheel
 
 ## Prerequisites
 
